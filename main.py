@@ -83,7 +83,7 @@ def _rule_check(service_name, service, level):
         rule["result"] = rule_checker.check_rule(convert_snake_case(rule_name))
 
     elapsed_time = datetime.now() - now
-    print(convert_snake_case(service_name), elapsed_time.total_seconds())
+    print(f"{convert_snake_case(service_name)} - Processing Time: {elapsed_time.total_seconds()}")
 
 
 def show_bp_result(bp, level=2, show_all=False, excluded_resources={}):
