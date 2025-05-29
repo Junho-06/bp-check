@@ -83,7 +83,8 @@ class VPCRuleChecker(RuleChecker):
                 lambda x: x["IsEgress"] == False
                 and x["FromPort"] in common_ports
                 and x["ToPort"] in common_ports
-                and x.get("PrefixListId") is None,
+                and x.get("PrefixListId") is None
+                and x.get("ReferencedGroupInfo") is None,
                 self.security_group_rules,
             )
         ]
