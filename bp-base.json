@@ -308,7 +308,7 @@
   "RDS": {
     "enabled": true,
     "rules": {
-      "aurora-last-backup-recovery-point-created": {
+      "aurora-backup-created-in-24hour": {
         "enabled": true,
         "level": 2
       },

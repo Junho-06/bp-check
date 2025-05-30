@@ -19,14 +19,16 @@ class RDSRuleChecker(RuleChecker):
     def db_instances(self):
         return self.client.describe_db_instances()["DBInstances"]
 
-    def aurora_last_backup_recovery_point_created(self):
+    def aurora_backup_created_in_24hour(self):
         compliant_resources = []
         non_compliant_resources = []
 
         clusters = self.db_clusters
         for cluster in clusters:
             recovery_points = self.backup_client.list_recovery_points_by_resource(
-                ResourceArn=cluster["DBClusterArn"]
+                ResourceArn=cluster["DBClusterArn"],
+                ManagedByAWSBackupOnly=False,
+                MaxResults = 100
             )["RecoveryPoints"]
             if recovery_points == []:
                 non_compliant_resources.append(cluster["DBClusterArn"])
