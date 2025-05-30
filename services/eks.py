@@ -73,8 +73,9 @@ class EKSRuleChecker(RuleChecker):
         compliant_resource = []
         non_compliant_resources = []
 
+        latest_version = self.client.describe_cluster_versions()["clusterVersions"][0]["clusterVersion"]
         for cluster in self.clusters:
-            if cluster["version"] == self.client.describe_cluster_version()["clusterVersions"][0]["clusterVersion"]:
+            if cluster["version"] == latest_version:
                 compliant_resource.append(cluster["arn"])
             else:
                 non_compliant_resources.append(cluster["arn"])
