@@ -409,10 +409,6 @@
       "dynamodb-table-encrypted-kms": {
         "enabled": true,
         "level": 2
-      },
-      "dynamodb-table-encryption-enabled": {
-        "enabled": true,
-        "level": 2
       }
     }
   },

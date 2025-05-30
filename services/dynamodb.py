@@ -138,24 +138,5 @@ class DynamoDBRuleChecker(RuleChecker):
             non_compliant_resources=non_compliant_resources,
         )
 
-    def dynamodb_table_encryption_enabled(self):
-        compliant_resources = []
-        non_compliant_resources = []
-
-        for table in self.tables:
-            if (
-                "SSEDescription" in table
-                and table["SSEDescription"]["Status"] == "ENABLED"
-            ):
-                compliant_resources.append(table["TableArn"])
-            else:
-                non_compliant_resources.append(table["TableArn"])
-
-        return RuleCheckResult(
-            passed=not non_compliant_resources,
-            compliant_resources=compliant_resources,
-            non_compliant_resources=non_compliant_resources,
-        )
-
 
 rule_checker = DynamoDBRuleChecker
