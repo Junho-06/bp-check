@@ -402,7 +402,7 @@
         "enabled": true,
         "level": 2
       },
-      "dynamodb-last-backup-recovery-point-created": {
+      "dynamodb-backup-created-in-24hour": {
         "enabled": true,
         "level": 2
       },

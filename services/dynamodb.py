@@ -52,7 +52,7 @@ class DynamoDBRuleChecker(RuleChecker):
             non_compliant_resources=non_compliant_resources,
         )
 
-    def dynamodb_last_backup_recovery_point_created(self):
+    def dynamodb_backup_created_in_24hour(self):
         compliant_resources = []
         non_compliant_resources = []
 
