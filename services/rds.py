@@ -255,8 +255,8 @@ class RDSRuleChecker(RuleChecker):
 
         clusters = self.db_clusters
         logs_for_engine = {
-            "aurora-mysql": ["audit", "error", "general", "slowquery"],
-            "aurora-postgresql": ["postgresql"],
+            "aurora-mysql": ["audit", "error", "general", "iam-db-auth-error", "instance", "slowquery"],
+            "aurora-postgresql": ["iam-db-auth-error", "instance", "postgresql"],
             "docdb": ["audit", "profiler"],
         }
 
