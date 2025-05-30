@@ -58,9 +58,12 @@ class DynamoDBRuleChecker(RuleChecker):
 
         for table in self.tables:
             recovery_points = self.backup_client.list_recovery_points_by_resource(
-                ResourceArn=table["TableArn"]
+                ResourceArn=table["TableArn"],
+                ManagedByAWSBackupOnly=False,
+                MaxResults = 100
             )["RecoveryPoints"]
-            if not recovery_points:
+            print(recovery_points)
+            if recovery_points == []:
                 non_compliant_resources.append(table["TableArn"])
                 continue
 
@@ -68,10 +71,10 @@ class DynamoDBRuleChecker(RuleChecker):
                 [recovery_point["CreationDate"] for recovery_point in recovery_points]
             )[-1]
 
-            if datetime.now(tz=tzlocal()) - latest_recovery_point > timedelta(days=1):
-                non_compliant_resources.append(table["TableArn"])
-            else:
+            if datetime.now(tz=tzlocal()) - latest_recovery_point < timedelta(days=1):
                 compliant_resources.append(table["TableArn"])
+            else:
+                non_compliant_resources.append(table["TableArn"])
 
         return RuleCheckResult(
             passed=not non_compliant_resources,
