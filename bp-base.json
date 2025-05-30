@@ -232,6 +232,10 @@
       "eks-endpoint-no-public-access": {
         "enabled": true,
         "level": 1
+      },
+      "eks-cluster-latest-version": {
+        "enabled": true,
+        "level": 1
       }
     }
   },

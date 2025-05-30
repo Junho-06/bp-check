@@ -68,6 +68,22 @@ class EKSRuleChecker(RuleChecker):
             compliant_resources=compliant_resource,
             non_compliant_resources=non_compliant_resources,
         )
+    
+    def eks_cluster_latest_version(self):
+        compliant_resource = []
+        non_compliant_resources = []
+
+        for cluster in self.clusters:
+            if cluster["version"] == self.client.describe_cluster_version()["clusterVersions"][0]["clusterVersion"]:
+                compliant_resource.append(cluster["arn"])
+            else:
+                non_compliant_resources.append(cluster["arn"])
+
+        return RuleCheckResult(
+            passed=not non_compliant_resources,
+            compliant_resources=compliant_resource,
+            non_compliant_resources=non_compliant_resources,
+        )
 
 
 rule_checker = EKSRuleChecker
