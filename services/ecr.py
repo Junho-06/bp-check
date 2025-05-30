@@ -124,7 +124,7 @@ class ECRRuleChecker(RuleChecker):
             non_compliant_resources=non_compliant_resources,
         )
 
-    def ecr_kms_encryption_1(self):
+    def ecr_kms_encryption(self):
         compliant_resource = []
         non_compliant_resources = []
 

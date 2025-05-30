@@ -250,7 +250,7 @@
         "enabled": true,
         "level": 2
       },
-      "ecr-kms-encryption-1": {
+      "ecr-kms-encryption": {
         "enabled": true,
         "level": 2
       }
