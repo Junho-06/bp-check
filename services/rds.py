@@ -64,7 +64,7 @@ class RDSRuleChecker(RuleChecker):
             non_compliant_resources=non_compliant_resources,
         )
 
-    def db_cluster_auto_backup_enabled(self):
+    def db_instance_backup_enabled(self):
         compliant_resources = []
         non_compliant_resources = []
 
