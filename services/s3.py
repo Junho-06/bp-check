@@ -100,9 +100,18 @@ class S3RuleChecker(RuleChecker):
     def s3_bucket_ssl_requests_only(self):
         compliant_resources = []
         non_compliant_resources = []
-
+        
         for bucket in self.buckets:
-            policy = self.client.get_bucket_policy(Bucket=bucket["Name"])["Policy"]
+            try:
+                policy = self.client.get_bucket_policy(Bucket=bucket["Name"])["Policy"]
+            except botocore.exceptions.ClientError as e:
+                if (
+                    e.response["Error"]["Code"]
+                    == "NoSuchBucketPolicy"
+                ):
+                    continue
+                else:
+                    raise e
             if "aws:SecureTransport" in policy:
                 compliant_resources.append(f"arn:aws:s3:::{bucket['Name']}")
             else:
@@ -185,7 +194,9 @@ class S3RuleChecker(RuleChecker):
 
         for bucket in self.buckets:
             backups = self.backup_client.list_recovery_points_by_resource(
-                ResourceArn=f"arn:aws:s3:::{bucket['Name']}"
+                ResourceArn=f"arn:aws:s3:::{bucket['Name']}",
+                ManagedByAWSBackupOnly=False,
+                MaxResults = 100
             )
 
             if backups["RecoveryPoints"] != []:
