@@ -1,6 +1,7 @@
 from models import RuleCheckResult, RuleChecker
 from functools import cached_property
 import boto3
+import fnmatch
 
 
 class ECRRuleChecker(RuleChecker):
@@ -11,15 +12,72 @@ class ECRRuleChecker(RuleChecker):
     def repositories(self):
         return self.client.describe_repositories()["repositories"]
 
-    def ecr_private_image_scanning_enabled(self):
+    def ecr_private_image_scan_on_push_enabled(self):
         compliant_resource = []
         non_compliant_resources = []
 
-        for repository in self.repositories:
-            if repository["imageScanningConfiguration"]["scanOnPush"] == True:
-                compliant_resource.append(repository["repositoryArn"])
-            else:
+        response = self.client.get_registry_scanning_configuration()
+        rules = response["scanningConfiguration"].get("rules", [])
+
+        if not rules:
+            for repository in self.repositories:
                 non_compliant_resources.append(repository["repositoryArn"])
+
+        else:
+            for repository in self.repositories:
+                matched = False
+                for rule in rules:
+                    if rule["scanFrequency"] != "SCAN_ON_PUSH":
+                        continue
+                    for filt in rule["repositoryFilters"]:
+                        if (
+                            filt["filter"] == "*" or
+                            fnmatch.fnmatch(repository["repositoryName"], filt["filter"])
+                        ):
+                            compliant_resource.append(repository["repositoryArn"])
+                            matched = True
+                            break
+                    if matched:
+                        break
+
+                if not matched:
+                    non_compliant_resources.append(repository["repositoryArn"])
+
+        return RuleCheckResult(
+            passed=not non_compliant_resources,
+            compliant_resources=compliant_resource,
+            non_compliant_resources=non_compliant_resources,
+        )
+    
+    def ecr_private_image_continuous_scan_enabled(self):
+        compliant_resource = []
+        non_compliant_resources = []
+
+        response = self.client.get_registry_scanning_configuration()
+        rules = response["scanningConfiguration"].get("rules", [])
+
+        if not rules:
+            for repository in self.repositories:
+                non_compliant_resources.append(repository["repositoryArn"]) 
+        else:
+            for repository in self.repositories:
+                matched = False
+                for rule in rules:
+                    if rule["scanFrequency"] != "CONTINUOUS_SCAN":
+                        continue
+                    for filt in rule["repositoryFilters"]:
+                        if (
+                            filt["filter"] == "*" or
+                            fnmatch.fnmatch(repository["repositoryName"], filt["filter"])
+                        ):
+                            compliant_resource.append(repository["repositoryArn"])
+                            matched = True
+                            break
+                    if matched:
+                        break
+
+                if not matched:
+                    non_compliant_resources.append(repository["repositoryArn"])
 
         return RuleCheckResult(
             passed=not non_compliant_resources,

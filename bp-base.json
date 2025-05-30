@@ -234,7 +234,11 @@
   "ECR": {
     "enabled": true,
     "rules": {
-      "ecr-private-image-scanning-enabled": {
+      "ecr_private_image_scan_on_push_enabled": {
+        "enabled": true,
+        "level": 1
+      },
+      "ecr_private_image_continuous_scan_enabled": {
         "enabled": true,
         "level": 2
       },
