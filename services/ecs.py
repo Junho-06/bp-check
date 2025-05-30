@@ -33,7 +33,8 @@ class ECSRuleChecker(RuleChecker):
 
     @cached_property
     def clusters(self):
-        return self.client.describe_clusters(include=["SETTINGS"])["clusters"]
+        cluster_arns = self.client.list_clusters()["clusterArns"]
+        return self.client.describe_clusters(include=["SETTINGS"], clusters=[arn.split("/")[-1] for arn in cluster_arns])["clusters"]
 
     @cached_property
     def services(self):
@@ -42,6 +43,8 @@ class ECSRuleChecker(RuleChecker):
             service_arns = self.client.list_services(
                 cluster=cluster["clusterArn"], launchType="FARGATE"
             )["serviceArns"]
+            if service_arns == []:
+                continue
             services += self.client.describe_services(
                 cluster=cluster["clusterArn"], services=service_arns
             )["services"]
@@ -107,7 +110,7 @@ class ECSRuleChecker(RuleChecker):
             non_compliant_resources=non_compliant_resources,
         )
 
-    def ecs_container_insights_enabled(self):
+    def ecs_container_insights_default_enabled(self):
         compliant_resources = []
         non_compliant_resources = []
 
@@ -121,6 +124,31 @@ class ECSRuleChecker(RuleChecker):
             if (
                 container_insights_setting
                 and container_insights_setting[0]["value"] == "enabled"
+            ):
+                compliant_resources.append(cluster["clusterArn"])
+            else:
+                non_compliant_resources.append(cluster["clusterArn"])
+
+        return RuleCheckResult(
+            passed=not non_compliant_resources,
+            compliant_resources=compliant_resources,
+            non_compliant_resources=non_compliant_resources,
+        )
+    
+    def ecs_container_insights_enhanced_enabled(self):
+        compliant_resources = []
+        non_compliant_resources = []
+
+        for cluster in self.clusters:
+            container_insights_setting = [
+                setting
+                for setting in cluster["settings"]
+                if setting["name"] == "containerInsights"
+            ]
+
+            if (
+                container_insights_setting
+                and container_insights_setting[0]["value"] == "enhanced"
             ):
                 compliant_resources.append(cluster["clusterArn"])
             else:

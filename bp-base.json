@@ -192,7 +192,11 @@
         "enabled": true,
         "level": 2
       },
-      "ecs-container-insights-enabled": {
+      "ecs-container-insights-default-enabled": {
+        "enabled": true,
+        "level": 1
+      },
+      "ecs-container-insights-enhanced-enabled": {
         "enabled": true,
         "level": 2
       },
