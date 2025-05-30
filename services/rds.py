@@ -64,13 +64,13 @@ class RDSRuleChecker(RuleChecker):
             non_compliant_resources=non_compliant_resources,
         )
 
-    def db_instance_backup_enabled(self):
+    def db_cluster_auto_backup_enabled(self):
         compliant_resources = []
         non_compliant_resources = []
 
         clusters = self.db_clusters
         for cluster in clusters:
-            if "BackupRetentionPeriod" in cluster:
+            if cluster.get("BackupRetentionPeriod", 0) > 0:
                 compliant_resources.append(cluster["DBClusterArn"])
             else:
                 non_compliant_resources.append(cluster["DBClusterArn"])
