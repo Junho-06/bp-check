@@ -28,6 +28,9 @@ class RDSRuleChecker(RuleChecker):
             recovery_points = self.backup_client.list_recovery_points_by_resource(
                 ResourceArn=cluster["DBClusterArn"]
             )["RecoveryPoints"]
+            if recovery_points == []:
+                non_compliant_resources.append(cluster["DBClusterArn"])
+                continue
             recovery_point_creation_dates = sorted(
                 [i["CreationDate"] for i in recovery_points]
             )
@@ -64,7 +67,7 @@ class RDSRuleChecker(RuleChecker):
             non_compliant_resources=non_compliant_resources,
         )
 
-    def db_instance_backup_enabled(self):
+    def rds_cluster_auto_backup_enabled(self):
         compliant_resources = []
         non_compliant_resources = []
 
@@ -174,7 +177,7 @@ class RDSRuleChecker(RuleChecker):
 
         clusters = self.db_clusters
         for cluster in clusters:
-            if len(cluster.get("AvailabilityZones", [])) > 1:
+            if cluster.get("MultiAZ", False):
                 compliant_resources.append(cluster["DBClusterArn"])
             else:
                 non_compliant_resources.append(cluster["DBClusterArn"])
@@ -261,6 +264,9 @@ class RDSRuleChecker(RuleChecker):
         }
 
         for cluster in clusters:
+            if "EnabledCloudwatchLogsExports" not in cluster:
+                non_compliant_resources.append(cluster["DBClusterArn"])
+                continue
             if sorted(cluster["EnabledCloudwatchLogsExports"]) == logs_for_engine.get(
                 cluster["Engine"]
             ):

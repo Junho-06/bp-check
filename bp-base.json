@@ -316,7 +316,7 @@
         "enabled": true,
         "level": 2
       },
-      "db-instance-backup-enabled": {
+      "rds_cluster_auto_backup_enabled": {
         "enabled": true,
         "level": 2
       },
