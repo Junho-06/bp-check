@@ -242,11 +242,11 @@
   "ECR": {
     "enabled": true,
     "rules": {
-      "ecr_private_image_scan_on_push_enabled": {
+      "ecr-private-image-scan-on-push-enabled": {
         "enabled": true,
         "level": 1
       },
-      "ecr_private_image_continuous_scan_enabled": {
+      "ecr-private-image-continuous-scan-enabled": {
         "enabled": true,
         "level": 2
       },
@@ -320,7 +320,7 @@
         "enabled": true,
         "level": 2
       },
-      "rds_cluster_auto_backup_enabled": {
+      "rds-cluster-auto-backup-enabled": {
         "enabled": true,
         "level": 2
       },
@@ -595,6 +595,15 @@
       "securityhub-enabled": {
         "enabled": true,
         "level": 1
+      }
+    }
+  },
+  "CloudTrail": {
+    "enabled": true,
+    "rules": {
+      "trail-create-check": {
+        "enabled": true,
+        "level": 2
       }
     }
   }

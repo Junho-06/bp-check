@@ -22,4 +22,5 @@ from . import (
     sns,
     vpc,
     wafv2,
+    cloudtrail,
 )
