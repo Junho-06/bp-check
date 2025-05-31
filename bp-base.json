@@ -340,6 +340,10 @@
         "enabled": true,
         "level": 2
       },
+      "rds-cluster-subnet-group-check": {
+        "enabled": true,
+        "level": 2
+      },
       "rds-cluster-iam-authentication-enabled": {
         "enabled": true,
         "level": 2

@@ -153,6 +153,23 @@ class RDSRuleChecker(RuleChecker):
             compliant_resources=compliant_resources,
             non_compliant_resources=non_compliant_resources,
         )
+    
+    def rds_cluster_subnet_group_check(self):
+        compliant_resources = []
+        non_compliant_resources = []
+
+        clusters = self.db_clusters
+        for cluster in clusters:
+            if cluster["DBSubnetGroup"] != "default":
+                compliant_resources.append(cluster["DBClusterArn"])
+            else:
+                non_compliant_resources.append(cluster["DBClusterArn"])
+
+        return RuleCheckResult(
+            passed=not non_compliant_resources,
+            compliant_resources=compliant_resources,
+            non_compliant_resources=non_compliant_resources,
+        )
 
     def rds_cluster_iam_authentication_enabled(self):
         compliant_resources = []
