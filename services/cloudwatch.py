@@ -1,5 +1,6 @@
 from models import RuleCheckResult, RuleChecker
 import boto3
+import json
 
 
 class CloudWatchRuleChecker(RuleChecker):
@@ -25,30 +26,55 @@ class CloudWatchRuleChecker(RuleChecker):
             compliant_resources=compliant_resources,
             non_compliant_resources=non_compliant_resources,
         )
+    
+    def cw_loggroup_kms_encrypt_check(self):
+        compliant_resources = []
+        non_compliant_resources = []
+        log_groups = self.logs_client.describe_log_groups()["logGroups"]
 
-    def cloudwatch_alarm_settings_check(self):
+        for log_group in log_groups:
+            if "kmsKeyId" in log_group:
+                compliant_resources.append(log_group["logGroupArn"])
+            else:
+                non_compliant_resources.append(log_group["logGroupArn"])
+
+        return RuleCheckResult(
+            passed=not non_compliant_resources,
+            compliant_resources=compliant_resources,
+            non_compliant_resources=non_compliant_resources,
+        )
+
+    def cloudwatch_alarm_create_check(self):
         compliant_resources = []
         non_compliant_resources = []
         alarms = self.client.describe_alarms()["MetricAlarms"]
-        parameters = {
-            "MetricName": "",  # required
-            "Threshold": None,
-            "EvaluationPeriods": None,
-            "Period": None,
-            "ComparisonOperator": None,
-            "Statistic": None,
-        }
 
-        for alarm in alarms:
-            for check in [i for i in parameters.keys() if parameters[i] != None]:
-                if alarm["MetricName"] != parameters["MetricName"]:
-                    continue
-
-                if alarm[check] != parameters[check]:
-                    non_compliant_resources.append(alarm["AlarmArn"])
-                    break
-            else:
+        if alarms == []:
+            non_compliant_resources.append("No alarms were created")
+        else:
+            for alarm in alarms:
                 compliant_resources.append(alarm["AlarmArn"])
+
+        return RuleCheckResult(
+            passed=not non_compliant_resources,
+            compliant_resources=compliant_resources,
+            non_compliant_resources=non_compliant_resources,
+        )
+
+    def cloudwatch_dashboard_create_check(self):
+        compliant_resources = []
+        non_compliant_resources = []
+        dashboards = self.client.list_dashboards()["DashboardEntries"]
+
+        if dashboards == []:
+            non_compliant_resources.append("No Dashboards were created")
+        else:
+            for dashboard in dashboards:
+                response = json.loads(self.client.get_dashboard(DashboardName=dashboard["DashboardName"])["DashboardBody"])
+                if response["widgets"] != []:
+                    compliant_resources.append(dashboard["DashboardArn"])
+                else:
+                    non_compliant_resources.append(f"{dashboard["DashboardName"]} dashboard has no widgets")
 
         return RuleCheckResult(
             passed=not non_compliant_resources,

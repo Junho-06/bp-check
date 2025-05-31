@@ -477,7 +477,15 @@
         "enabled": true,
         "level": 2
       },
-      "cloudwatch-alarm-settings-check": {
+      "cw-loggroup-kms-encrypt-check": {
+        "enabled": true,
+        "level": 2
+      },
+      "cloudwatch-alarm-create-check": {
+        "enabled": true,
+        "level": 2
+      },
+      "cloudwatch-dashboard-create-check": {
         "enabled": true,
         "level": 2
       }
