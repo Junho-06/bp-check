@@ -131,14 +131,15 @@ class CloudFrontRuleChecker(RuleChecker):
                 non_compliant_resources.append(distribution["ARN"])
                 continue
 
-            allow_alls = [
-                behavior
-                for behavior in distribution["CacheBehaviors"]["Items"]
-                if behavior["ViewerProtocolPolicy"] == "allow-all"
-            ]
-            if allow_alls:
-                non_compliant_resources.append(distribution["ARN"])
-                continue
+            if "Items" in distribution["CacheBehaviors"]:
+                allow_alls = [
+                    behavior
+                    for behavior in distribution["CacheBehaviors"]["Items"]
+                    if behavior["ViewerProtocolPolicy"] == "allow-all"
+                ]
+                if allow_alls:
+                    non_compliant_resources.append(distribution["ARN"])
+                    continue
 
             compliant_resources.append(distribution["ARN"])
 
