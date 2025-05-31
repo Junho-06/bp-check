@@ -35,6 +35,9 @@ class APIGatewayRuleChecker(RuleChecker):
                 ApiId=api["ApiId"],
             )
 
+            if stages["Items"] == []:
+                non_compliant_resources.append(api["Name"])
+
             non_compliant_resources += [
                 f"{api['Name']} / {stage['StageName']}"
                 for stage in stages["Items"]
@@ -65,6 +68,9 @@ class APIGatewayRuleChecker(RuleChecker):
             response = self.v2_client.get_routes(
                 ApiId=api["ApiId"],
             )
+
+            if response["Items"] == []:
+                non_compliant_resources.append(api["Name"])
 
             non_compliant_resources += [
                 f"{api['Name']} / {route['RouteKey']}"
