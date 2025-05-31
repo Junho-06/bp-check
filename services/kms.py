@@ -1,5 +1,6 @@
 from models import RuleCheckResult, RuleChecker
 import boto3
+import botocore
 
 
 class KMSRuleChecker(RuleChecker):
@@ -12,8 +13,12 @@ class KMSRuleChecker(RuleChecker):
         keys = self.client.list_keys()["Keys"]
 
         for key in keys:
-            response = self.client.get_key_rotation_status(KeyId=key["KeyId"])
-
+            try:
+                response = self.client.get_key_rotation_status(KeyId=key["KeyId"])
+            except botocore.exceptions.ClientError as e:
+                if e.response["Error"]["Code"] == "AccessDeniedException":
+                    continue
+                
             if response["KeyRotationEnabled"] == True:
                 compliant_resources.append(response["KeyId"])
             else:
