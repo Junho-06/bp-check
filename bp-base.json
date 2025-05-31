@@ -606,5 +606,18 @@
         "level": 2
       }
     }
+  },
+  "GuardDuty": {
+    "enabled": true,
+    "rules": {
+      "guardduty-enabled": {
+        "enabled": true,
+        "level": 2
+      },
+      "guardduty-findings-exists": {
+        "enabled": true,
+        "level": 2
+      }
+    }
   }
 }

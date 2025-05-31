@@ -23,4 +23,5 @@ from . import (
     vpc,
     wafv2,
     cloudtrail,
+    guardduty,
 )
