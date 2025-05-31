@@ -62,7 +62,8 @@ class CodeSeriesChecker(RuleChecker):
                 applicationName=application
             )["deploymentGroups"]
 
-            if not deployment_group_names:
+            if deployment_group_names == []:
+                non_compliant_resources.append(application)
                 continue
 
             deployment_groups = self.deploy_client.batch_get_deployment_groups(
