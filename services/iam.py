@@ -10,6 +10,10 @@ class IAMRuleChecker(RuleChecker):
     @cached_property
     def policies(self):
         return self.client.list_policies(Scope="Local")["Policies"]
+    
+    @cached_property
+    def managed_policies(self):
+        return self.client.list_policies(Scope="AWS")["Policies"]
 
     @cached_property
     def policy_default_versions(self):
@@ -33,13 +37,14 @@ class IAMRuleChecker(RuleChecker):
             policy_version = self.policy_default_versions[policy["Arn"]]
 
             for statement in policy_version["Document"]["Statement"]:
-                if (
-                    statement["Action"] == "*"
-                    and statement["Resource"] == "*"
-                    and statement["Effect"] == "Allow"
-                ):
-                    non_compliant_resources.append(policy["Arn"])
-                    break
+                if "Action" in statement and "Resource" in statement:
+                    if (
+                        statement["Action"] == "*"
+                        and statement["Resource"] == "*"
+                        and statement["Effect"] == "Allow"
+                    ):
+                        non_compliant_resources.append(policy["Arn"])
+                        break
             else:
                 compliant_resource.append(policy["Arn"])
 
@@ -60,15 +65,16 @@ class IAMRuleChecker(RuleChecker):
                 if statement["Effect"] == "Deny":
                     continue
 
-                if type(statement["Action"]) == str:
-                    statement["Action"] = [statement["Action"]]
+                if "Action" in statement and "Resource" in statement:
+                    if type(statement["Action"]) == str:
+                        statement["Action"] = [statement["Action"]]
 
-                full_access_actions = [
-                    action for action in statement["Action"] if action.endswith(":*")
-                ]
-                if full_access_actions:
-                    non_compliant_resources.append(policy["Arn"])
-                    break
+                    full_access_actions = [
+                        action for action in statement["Action"] if action.endswith(":*")
+                    ]
+                    if full_access_actions:
+                        non_compliant_resources.append(policy["Arn"])
+                        break
             else:
                 compliant_resource.append(policy["Arn"])
 
@@ -81,18 +87,14 @@ class IAMRuleChecker(RuleChecker):
     def iam_role_managed_policy_check(self):
         compliant_resource = []
         non_compliant_resources = []
-        policy_arns = []  # 검사할 managed policy arn 목록
 
-        for policy in policy_arns:
-            response = self.client.list_entities_for_policy(PolicyArn=policy)
+        for policy in self.managed_policies:
             if (
-                response["PolicyGroups"] == []
-                and response["PolicyUsers"] == []
-                and response["PolicyRoles"] == []
+                policy["AttachmentCount"] > 0
             ):
-                non_compliant_resources.append(policy)
+                compliant_resource.append(policy["Arn"])
             else:
-                compliant_resource.append(policy)
+                non_compliant_resources.append(policy["Arn"])
 
         return RuleCheckResult(
             passed=not compliant_resource,
