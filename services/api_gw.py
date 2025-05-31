@@ -37,6 +37,7 @@ class APIGatewayRuleChecker(RuleChecker):
 
             if stages["Items"] == []:
                 non_compliant_resources.append(api["Name"])
+                continue
 
             non_compliant_resources += [
                 f"{api['Name']} / {stage['StageName']}"
@@ -71,6 +72,7 @@ class APIGatewayRuleChecker(RuleChecker):
 
             if response["Items"] == []:
                 non_compliant_resources.append(api["Name"])
+                continue
 
             non_compliant_resources += [
                 f"{api['Name']} / {route['RouteKey']}"
@@ -100,6 +102,10 @@ class APIGatewayRuleChecker(RuleChecker):
 
         for api in self.rest_apis:
             stages = self.rest_api_stages[api["id"]]
+
+            if stages["item"] == []:
+                non_compliant_resources.append(api["name"])
+                continue
 
             for stage in stages["item"]:
                 stage_arn = f"arn:aws:apigateway:{self.v1_client.meta.region_name}::/restapis/{api['id']}/stages/{stage['stageName']}"
