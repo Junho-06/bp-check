@@ -128,6 +128,10 @@ class APIGatewayRuleChecker(RuleChecker):
         for api in self.rest_apis:
             stages = self.rest_api_stages[api["id"]]
 
+            if stages["item"] == []:
+                non_compliant_resources.append(api["name"])
+                continue
+
             non_compliant_resources += [
                 f"arn:aws:apigateway:{self.v1_client.meta.region_name}::/restapis/{api['id']}/stages/{stage['stageName']}"
                 for stage in stages["item"]
@@ -159,6 +163,10 @@ class APIGatewayRuleChecker(RuleChecker):
         for api in self.rest_apis:
             stages = self.rest_api_stages[api["id"]]
 
+            if stages["item"] == []:
+                non_compliant_resources.append(api["name"])
+                continue
+
             non_compliant_resources += [
                 f"arn:aws:apigateway:{self.v1_client.meta.region_name}::/restapis/{api['id']}/stages/{stage['stageName']}"
                 for stage in stages["item"]
@@ -189,6 +197,10 @@ class APIGatewayRuleChecker(RuleChecker):
         non_compliant_resources = []
         for api in self.rest_apis:
             stages = self.rest_api_stages[api["id"]]
+
+            if stages["item"] == []:
+                non_compliant_resources.append(api["name"])
+                continue
 
             non_compliant_resources += [
                 f"arn:aws:apigateway:{self.v1_client.meta.region_name}::/restapis/{api['id']}/stages/{stage['stageName']}"
